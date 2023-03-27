@@ -27,6 +27,8 @@ public class MovieServiceClient {
 
     private static final String BASE_URL = "http://localhost:8080/api/movies";
     private static final String SOAP_URL = "http://localhost:8080/movielist/MovieServiceEndpoint?wsdl";
+    private static final String OMDB_API_KEY = "your_api_key_here";
+    private static final String OMDB_API_URL = "https://www.omdbapi.com/?apikey=" + OMDB_API_KEY;
 
     public void addMovie(Movie movie) {
         String url = BASE_URL + "/addMovie";
@@ -63,5 +65,10 @@ public class MovieServiceClient {
         return soapEndpoint.getAllMovies();
     }
 
-}
+    public String getOmdbMovie(String title) {
+        String url = OMDB_API_URL + "&t=" + title;
+        String response = restTemplate.getForObject(url, String.class);
+        return response;
+    }
 
+}

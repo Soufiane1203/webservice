@@ -12,12 +12,15 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MovieActorServiceClient {
+    // URL endpoints for the movie and actor services
     private static final String MOVIE_SERVICE_URL = "http://localhost:8080/movie";
     private static final String ACTOR_SERVICE_URL = "http://localhost:8080/actor";
 
+    // Create a new RestTemplate instance to send HTTP requests
     private static RestTemplate restTemplate = new RestTemplate();
 
     public static void main(String[] args) {
+        // Call the methods to demonstrate the functionality of the movie and actor services
         createMovie();
         createActor();
         linkMovieToActor();
@@ -26,56 +29,60 @@ public class MovieActorServiceClient {
     }
 
     private static void createMovie() {
+        // Create a new Movie instance and set its properties
         Movie newMovie = new Movie();
         newMovie.setTitle("The Godfather");
         newMovie.setYear(1972);
         newMovie.setDirector("Francis Ford Coppola");
         newMovie.setGenre("Crime, Drama");
+
+        // Create an HTTP request entity containing the new Movie object
         HttpEntity<Movie> request = new HttpEntity<>(newMovie);
+
+        // Send an HTTP POST request to the movie service to create a new movie resource
+        // The response entity will contain the newly created movie resource
         Movie createdMovie = restTemplate.postForObject(MOVIE_SERVICE_URL, request, Movie.class);
+
+        // Print out the details of the created movie resource
         System.out.println("Created movie: " + createdMovie);
     }
 
     private static void createActor() {
+        // Create a new Actor instance and set its properties
         Actor newActor = new Actor();
         newActor.setName("Marlon Brando");
         newActor.setBirthYear(1924);
         newActor.setGender("Male");
+
+        // Create an HTTP request entity containing the new Actor object
         HttpEntity<Actor> request = new HttpEntity<>(newActor);
+
+        // Send an HTTP POST request to the actor service to create a new actor resource
+        // The response entity will contain the newly created actor resource
         Actor createdActor = restTemplate.postForObject(ACTOR_SERVICE_URL, request, Actor.class);
+
+        // Print out the details of the created actor resource
         System.out.println("Created actor: " + createdActor);
     }
 
     private static void linkMovieToActor() {
+        // Set the title of the movie and name of the actor to link
         String movieTitle = "The Godfather";
         String actorName = "Marlon Brando";
+
+        // Send an HTTP GET request to the movie service to retrieve the movie resource with the given title
         Movie movie = restTemplate.getForObject(MOVIE_SERVICE_URL + "/title/" + movieTitle, Movie.class);
+
+        // Send an HTTP GET request to the actor service to retrieve the actor resource with the given name
         Actor actor = restTemplate.getForObject(ACTOR_SERVICE_URL + "/name/" + actorName, Actor.class);
+
+        // Check if either the movie or actor resource was not found
         if (movie == null) {
             throw new RuntimeException("Movie with title " + movieTitle + " not found");
         }
         if (actor == null) {
             throw new RuntimeException("Actor with name " + actorName + " not found");
         }
-        movie.setActors(Arrays.asList(actor));
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<List<Actor>> request = new HttpEntity<>(movie.getActors(), headers);
-        restTemplate.exchange(MOVIE_SERVICE_URL + "/" + movie.getId() + "/actors", HttpMethod.PUT, request, Void.class);
-        System.out.println("Linked movie " + movieTitle + " to actor " + actorName);
-    }
 
-    private static void getMovieByTitle() {
-        String title = "The Godfather";
-        Movie movie = restTemplate.getForObject(MOVIE_SERVICE_URL + "/title/" + title, Movie.class);
-        if (movie == null) {
-            throw new ResourceNotFoundException("Movie with title " + title + " not found");
-        }
-        System.out.println("Movie by title " + title + ": " + movie);
-    }
-
-    private static void getActorByName() {
-        String name = "Marlon Brando";
-        Actor actor = restTemplate.getForObject(ACTOR_SERVICE_URL + "/name/" + name, Actor.class);
-        if (actor == null) {
-            throw
+        // Set the movie's actors property to a list containing only the linked actor
+       

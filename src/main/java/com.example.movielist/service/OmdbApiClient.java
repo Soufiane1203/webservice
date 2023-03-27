@@ -8,6 +8,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class OmdbApiClient {
 
+    // Get the OMDB API key from application.properties
     @Value("${omdb.api.key}")
     private String apiKey;
 
@@ -15,10 +16,17 @@ public class OmdbApiClient {
     private final String omdbApiUrl = "http://www.omdbapi.com/";
 
     public String getMovieRanking(String movieTitle) {
+
+        // Build the URL to the OMDB API with the movie title and API key
         String url = omdbApiUrl + "?apikey=" + apiKey + "&t=" + movieTitle;
+
+        // Send a GET request to the OMDB API and get the response
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
+        // Get the response body as a string
         String responseBody = response.getBody();
-        // TODO: Parse the response body to extract the movie ranking
+
+        // Return the movie ranking as a string
         return null;
     }
 }

@@ -1,3 +1,4 @@
+// Importing necessary libraries and classes
 package com.example.movielist.client;
 
 import java.util.Arrays;
@@ -19,17 +20,21 @@ import com.example.movielist.model.Movie;
 import com.example.movielist.service.MovieServiceEndpoint;
 import com.example.movielist.service.MovieServiceEndpointService;
 
+// Declaring the class as a Spring component
 @Component
 public class MovieServiceClient {
 
+    // Injecting a RestTemplate object
     @Autowired
     private RestTemplate restTemplate;
 
+    // Declaring the base URL and other necessary URLs
     private static final String BASE_URL = "http://localhost:8080/api/movies";
     private static final String SOAP_URL = "http://localhost:8080/movielist/MovieServiceEndpoint?wsdl";
     private static final String OMDB_API_KEY = "your_api_key_here";
     private static final String OMDB_API_URL = "https://www.omdbapi.com/?apikey=" + OMDB_API_KEY;
 
+    // Method to add a new movie using HTTP POST request
     public void addMovie(Movie movie) {
         String url = BASE_URL + "/addMovie";
         HttpHeaders headers = new HttpHeaders();
@@ -38,17 +43,20 @@ public class MovieServiceClient {
         restTemplate.postForObject(url, request, Movie.class);
     }
 
+    // Method to retrieve a movie by ID using HTTP GET request
     public Movie getMovieByIdRest(int id) {
         String url = BASE_URL + "/{id}";
         return restTemplate.getForObject(url, Movie.class, id);
     }
 
+    // Method to retrieve all movies using HTTP GET request
     public List<Movie> getAllMoviesRest() {
         String url = BASE_URL;
         Movie[] movies = restTemplate.getForObject(url, Movie[].class);
         return Arrays.asList(movies);
     }
 
+    // Method to retrieve a movie by ID using SOAP
     public Movie getMovieByIdSoap(int id) throws Exception {
         QName serviceName = new QName("http://service.movielist.example.com/", "MovieServiceEndpointService");
         QName portName = new QName("http://service.movielist.example.com/", "MovieServiceEndpointPort");
@@ -57,6 +65,7 @@ public class MovieServiceClient {
         return soapEndpoint.getMovieById(id);
     }
 
+    // Method to retrieve all movies using SOAP
     public List<Movie> getAllMoviesSoap() throws Exception {
         QName serviceName = new QName("http://service.movielist.example.com/", "MovieServiceEndpointService");
         QName portName = new QName("http://service.movielist.example.com/", "MovieServiceEndpointPort");
@@ -65,6 +74,7 @@ public class MovieServiceClient {
         return soapEndpoint.getAllMovies();
     }
 
+    // Method to retrieve a movie from OMDb API
     public String getOmdbMovie(String title) {
         String url = OMDB_API_URL + "&t=" + title;
         String response = restTemplate.getForObject(url, String.class);

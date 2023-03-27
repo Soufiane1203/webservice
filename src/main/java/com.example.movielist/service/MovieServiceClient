@@ -1,7 +1,11 @@
 package com.example.movielist.client;
 
-import com.example.movielist.model.Actor;
-import com.example.movielist.model.Movie;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.xml.namespace.QName;
+import javax.xml.ws.Service;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -10,8 +14,10 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-import java.util.List;
+import com.example.movielist.model.Actor;
+import com.example.movielist.model.Movie;
+import com.example.movielist.service.MovieServiceEndpoint;
+import com.example.movielist.service.MovieServiceEndpointService;
 
 @Component
 public class MovieServiceClient {
@@ -20,6 +26,7 @@ public class MovieServiceClient {
     private RestTemplate restTemplate;
 
     private static final String BASE_URL = "http://localhost:8080/api/movies";
+    private static final String SOAP_URL = "http://localhost:8080/movielist/MovieServiceEndpoint?wsdl";
 
     public void addMovie(Movie movie) {
         String url = BASE_URL + "/addMovie";
@@ -27,3 +34,34 @@ public class MovieServiceClient {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Movie> request = new HttpEntity<>(movie, headers);
         restTemplate.postForObject(url, request, Movie.class);
+    }
+
+    public Movie getMovieByIdRest(int id) {
+        String url = BASE_URL + "/{id}";
+        return restTemplate.getForObject(url, Movie.class, id);
+    }
+
+    public List<Movie> getAllMoviesRest() {
+        String url = BASE_URL;
+        Movie[] movies = restTemplate.getForObject(url, Movie[].class);
+        return Arrays.asList(movies);
+    }
+
+    public Movie getMovieByIdSoap(int id) throws Exception {
+        QName serviceName = new QName("http://service.movielist.example.com/", "MovieServiceEndpointService");
+        QName portName = new QName("http://service.movielist.example.com/", "MovieServiceEndpointPort");
+        Service service = Service.create(SOAP_URL, serviceName);
+        MovieServiceEndpoint soapEndpoint = service.getPort(portName, MovieServiceEndpoint.class);
+        return soapEndpoint.getMovieById(id);
+    }
+
+    public List<Movie> getAllMoviesSoap() throws Exception {
+        QName serviceName = new QName("http://service.movielist.example.com/", "MovieServiceEndpointService");
+        QName portName = new QName("http://service.movielist.example.com/", "MovieServiceEndpointPort");
+        Service service = Service.create(SOAP_URL, serviceName);
+        MovieServiceEndpoint soapEndpoint = service.getPort(portName, MovieServiceEndpoint.class);
+        return soapEndpoint.getAllMovies();
+    }
+
+}
+
